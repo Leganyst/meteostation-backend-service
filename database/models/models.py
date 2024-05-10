@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, String, ForeignKey, Column
+from sqlalchemy import DateTime, String, ForeignKey, Column, false
 from sqlalchemy.orm import Mapped,  relationship, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
@@ -28,9 +28,9 @@ class User(Base):
 class Device(Base):
     __tablename__ = "devices"
 
-    id: Mapped[str] = mapped_column(String(255), primary_key=True, nullable=False)
+    id: Mapped[str] = mapped_column(String(255), primary_key=True, nullable=False, unique=True)
     registration_date: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
-    name: Mapped[str] = mapped_column(String(255))
+    name: Mapped[str] = mapped_column(String(255), nullable=True)
     
     users: Mapped["User"] = relationship("User", secondary="user_devices", back_populates="devices")
     snapshots: Mapped["Snapshot"] = relationship("Snapshot", back_populates="device")
@@ -64,8 +64,8 @@ class Snapshot(Base):
 class RainfallSnapshot(Base):
     __tablename__ = "rainfall_snapshots"
     
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=func.uuid_generate_v4())
-    rainfal_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    rainfall_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
     rainfall: Mapped[str] = mapped_column(String(255), nullable=True)
     
     snapshot: Mapped["Snapshot"] = relationship("Snapshot", back_populates="rainfall_snapshot", uselist=False)
@@ -74,11 +74,11 @@ class RainfallSnapshot(Base):
 class WindSnapshot(Base):
     __tablename__ = "wind_snapshots"
     
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     wind_direction_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
     wind_direction: Mapped[str] = mapped_column(String(255), nullable=True)
     wind_speed_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
-    wind_speed_dt: Mapped[str] = mapped_column(String(255), nullable=True)
+    wind_speed: Mapped[str] = mapped_column(String(255), nullable=True)
     
     snapshot: Mapped["Snapshot"] = relationship("Snapshot", back_populates="wind_snapshot", uselist=False)
     
@@ -86,12 +86,12 @@ class WindSnapshot(Base):
 class AirSnapshot(Base):
     __tablename__ = "air_snapshots"
     
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
-    air_temperature_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    air_temperature_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     air_temperature: Mapped[str] = mapped_column(String(255), nullable=True)
-    air_pressure_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
+    air_pressure_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     air_pressure: Mapped[str] = mapped_column(String(255), nullable=True)
-    air_humidity_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
+    air_humidity_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     air_humidity: Mapped[str] = mapped_column(String(255), nullable=True)
     
     snapshot: Mapped["Snapshot"] = relationship("Snapshot", back_populates="air_snapshot", uselist=False)
@@ -99,10 +99,10 @@ class AirSnapshot(Base):
 class SoilSnapshot(Base):
     __tablename__ = "soil_snapshots"
     
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)    
-    soil_temperature_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)    
+    soil_temperature_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=false)
     soil_temperature: Mapped[str] = mapped_column(String(255), nullable=True)
-    soil_humidity_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False, default=func.now())
+    soil_humidity_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     soil_humidity: Mapped[str] = mapped_column(String(255), nullable=True)
 
     snapshot: Mapped["Snapshot"] = relationship("Snapshot", back_populates="soil_snapshot", uselist=False)
@@ -110,8 +110,8 @@ class SoilSnapshot(Base):
 class DeviceSnapshot(Base):
     __tablename__ = "device_snapshots"
     
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
-    battery_voltage_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=True, default=func.now())
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    battery_voltage_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     battery_voltage: Mapped[str] = mapped_column(String(255), nullable=True)
     gps_latitude: Mapped[str] = mapped_column(String(255), nullable=True)
     gps_longitude: Mapped[str] = mapped_column(String(255), nullable=True)
@@ -122,7 +122,7 @@ class DeviceSnapshot(Base):
 class ErrorSnapshot(Base):
     __tablename__ = "error_snapshots"
     
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     wind_direction_error: Mapped[str] = mapped_column(String(255), nullable=True)
     wind_speed_error: Mapped[str] = mapped_column(String(255), nullable=True)
     rainfall_error: Mapped[str] = mapped_column(String(255), nullable=True)

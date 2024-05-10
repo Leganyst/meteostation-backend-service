@@ -60,7 +60,7 @@ def get_current_user(token: str = Depends(OAuth2PasswordBearer(tokenUrl="token")
     # Если словаря есть и есть ключ sub, тогда мы возвращаем просто почту пользователя
     if payload is not None and "sub" in payload:
         payload.update({"result": True})
-        return payload["sub"]
+        return payload
     else:
         return {
             "result": False,

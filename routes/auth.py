@@ -66,8 +66,19 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     token = Token(access_token=access_token, tokens_type="bearer", refresh_token=refresh_token)
     return token
 
+@auth.post("/refresh", response_model=Token, tags=["Авторизация"])
+def new_access_token(current_user: dict = Depends(get_current_user)):
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_token(
+        data={"sub": current_user.get('sub')}, expires_delta=access_token_expires
+    )
+    refresh_token = create_token(
+        data={"sub": current_user.get('sub')}, expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    )
+    return Token(access_token=access_token, tokens_type="bearer", refresh_token=refresh_token)
+
 @auth.get("/users/me")
-def read_users_me(current_user: str = Depends(get_current_user)):
+def read_users_me(current_user: dict = Depends(get_current_user)):
     if "exception" not in current_user:
         return {"user": current_user}
     else:
