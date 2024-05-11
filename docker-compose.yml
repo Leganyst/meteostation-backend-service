@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:1.25.5
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/certs:/etc/nginx/certs
+    depends_on:
+      - fastapi
+    restart: unless-stopped
+
+  fastapi:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=project
+      - DB_PORT=5432
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:16.3
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=project
+    restart: unless-stopped
+
+volumes:
+  db_data:
