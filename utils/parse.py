@@ -9,3 +9,6 @@ def parse_datetime(dt_string) -> datetime | None:
         return None
     except:
         raise HTTPException(status_code=400, detail="Incorrect date format, should be DD.MM.YYYY, HH:MM:SS")
+
+def format_datetime(dt):
+    return dt.strftime("%d.%m.%Y, %H:%M:%S") if dt else None

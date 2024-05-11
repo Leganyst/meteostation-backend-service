@@ -13,26 +13,46 @@ from uuid import UUID
 
 user_api = routing.APIRouter()
 
-@user_api.get("/api/users", tags=["Пользователи"], response_model=UserDevices)
+@user_api.get("/api/users/devices", tags=["Пользователи"], response_model=UserDevices,
+              responses={
+                  status.HTTP_404_NOT_FOUND: {
+                      "description": "User devices not found",
+                      "content": {
+                          "application/json": {
+                              "example": {"detail": "User devices not found"}
+                          }
+                      }
+                  },
+                  status.HTTP_200_OK: {
+                      "description": "User devices found successfully",
+                      "content": {
+                          "application/json": {
+                              "example": [{"user": "User email", "devices": ["Any string represents id", "Any string represents id"]}]
+                          }
+                      }
+                  }
+              })
 def get_devices_user(user: dict = Depends(get_current_user)):
     exception = user.get('exception')
     if exception:
         raise exception
-    else:
-        with Session(engine) as session:
-            query = select(User).where(User.email==user.get('sub')).options(joinedload(User.devices))
-            user = session.scalars(query).first()
-            
-            if user:
-                devices = [device.id for device in user.devices]
-                return (UserDevice(user=user.email, devices=devices))
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="User devices not found",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
-            
+    
+    with Session(engine) as session:
+        query = select(User).where(User.email == user.get('sub')).options(joinedload(User.devices))
+        user = session.scalars(query).first()
+        
+        devices = select(UserDevice).where(UserDevice.user_id == user.id)
+        devices = session.scalars(devices).all()
+        if devices:
+            devices_result = [device.device_id for device in devices]
+            return UserDevices(user=user.email, devices=devices_result)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User devices not found",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+             
                 
 @user_api.post("/api/user/device", tags=["Пользователи"],
                response_model=DeviceAPI, responses={
@@ -82,7 +102,7 @@ def add_device_user(device: DeviceAPI, response: Response, user: dict = Depends(
                          "description": "User or device not found",
                          "content": {
                              "application/json": {
-                                 "example": {"detail": "User not found"}
+                                 "example": {"detail": "User or device not found"}
                              }
                          }
                      },

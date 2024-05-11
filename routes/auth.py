@@ -10,7 +10,7 @@ from config import app, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from database.models.models import User
 from routes.models import UserAPI, Token
 from utils.hash import validate_password_hash, generate_password_hash
-from utils.tokens import create_token, get_current_user
+from utils.tokens import create_token, get_current_user, validate_token
 
 from datetime import timedelta
 
@@ -68,14 +68,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 @auth.post("/refresh", response_model=Token, tags=["Авторизация"])
 def new_access_token(current_user: dict = Depends(get_current_user)):
+    
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_token(
         data={"sub": current_user.get('sub')}, expires_delta=access_token_expires
     )
-    refresh_token = create_token(
-        data={"sub": current_user.get('sub')}, expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    )
-    return Token(access_token=access_token, tokens_type="bearer", refresh_token=refresh_token)
+
+    return Token(access_token=access_token, tokens_type="bearer")
 
 @auth.get("/users/me")
 def read_users_me(current_user: dict = Depends(get_current_user)):
