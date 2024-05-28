@@ -20,10 +20,10 @@ services:
       - "8000:8000"
     environment:
       - DB_HOST=db
-      - DB_USER=postgres
-      - DB_PASS=postgres
+      - DB_USER=irtsu
+      - DB_PASS=irtsu_meteostation
       - DB_NAME=project
-      - DB_PORT=5432
+      - DB_PORT=49155
     depends_on:
       - db
     restart: unless-stopped
@@ -32,10 +32,14 @@ services:
     image: postgres:16.3
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=irtsu
+      - POSTGRES_PASSWORD=irtsu_meteostation
       - POSTGRES_DB=project
+    ports:
+      - "49155:49155"
     restart: unless-stopped
 
 volumes:
