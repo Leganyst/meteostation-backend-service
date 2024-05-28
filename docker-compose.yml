@@ -32,10 +32,12 @@ services:
     image: postgres:16.3
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./pg_conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
     environment:
       - POSTGRES_USER=irtsu
       - POSTGRES_PASSWORD=irtsu_meteostation
       - POSTGRES_DB=project
+    command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
     ports:
       - "49155:49155"
     restart: unless-stopped
