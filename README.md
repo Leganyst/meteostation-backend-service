@@ -10,14 +10,18 @@
 
 <a name="1"></a>
 ## 1. Подготовка проекта
-1. Склонируйте проект:
+1. Сначала сделайте форк проекта на GitHub:
+    - Перейдите на страницу проекта на GitHub: `https://github.com/yourusername/yourproject`.
+    - Нажмите кнопку "Fork" в верхнем правом углу, чтобы создать копию проекта в своем аккаунте.
+
+2. Склонируйте форкнутый проект:
     ```sh
-    git clone https://github.com/yourusername/yourproject.git
+    git clone https://github.com/yourusername/yourforkedproject.git
     ```
 
-2. Перейдите в директорию проекта:
+3. Перейдите в директорию проекта:
     ```sh
-    cd yourproject
+    cd yourforkedproject
     ```
 
 <a name="2"></a>
